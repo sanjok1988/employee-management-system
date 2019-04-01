@@ -5,7 +5,7 @@ namespace App\Modules\Questions\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Modules\Questions\Models\Questions;
-
+use Session;
 class QuestionsController extends Controller
 {
 
@@ -80,8 +80,14 @@ class QuestionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroyQuestionnaire($id)
     {
-        //
+        if($q = $this->questions->find($id)){
+            $q->delete();
+            Session::flash('message', "successfully deleted");
+        }else{
+            Session::flash('message', "Failed");
+        }
+        return redirect()->intended();
     }
 }

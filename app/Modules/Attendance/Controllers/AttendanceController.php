@@ -40,13 +40,17 @@ class AttendanceController extends Controller
     public function myattendance(){
         $now = Carbon::now();
         $emp= Employees::select('id')->where('work_email', Auth::user()->email)->first();
-
-        $data = $this->model
-        ->select('e.first_name','e.middle_name', 'e.last_name', 'attendance.*')
-        ->join('employees as e', 'e.id', '=', 'attendance.employee_id')    
-        ->whereYear('attendance.created_at', $now->year)
-        ->where('employee_id', $emp->id)
-        ->paginate(10);
+        if($emp){
+            $data = $this->model
+            ->select('e.first_name','e.middle_name', 'e.last_name', 'attendance.*')
+            ->join('employees as e', 'e.id', '=', 'attendance.employee_id')    
+            ->whereYear('attendance.created_at', $now->year)
+            ->where('employee_id', $emp->id)
+            ->paginate(10);
+        }else{
+            Session::flash('message', 'Employee Account Not Found');
+        }
+        
   
         return view("Attendance::my", compact('data'));
     }
@@ -134,7 +138,7 @@ class AttendanceController extends Controller
             return redirect(route('attendance.my')); 
         }
 
-        if($uid){
+        if($emp){
             $current_time = Carbon::now()->toDateTimeString();
             $data = [
                 'employee_id' => $emp->id,

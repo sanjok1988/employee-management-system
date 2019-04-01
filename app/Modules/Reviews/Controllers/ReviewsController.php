@@ -65,13 +65,20 @@ class ReviewsController extends Controller
      * @return void
      */
     public function showCandidates(){
-        
-        $candidates = $this->reviewList
+        $builder = $this->reviewList
         ->select('*')
-        ->join('employees as e', 'e.id', 'candidate_list.employee_id')
-        ->where('reviewer_id', Auth::user()->id)
-        ->whereStatus(NULL)
-        ->get();
+        ->join('employees as e', 'e.id', 'candidate_list.employee_id')->where('candidate_list.status','open');
+
+        if(Auth::user()->hasRole('admin')){
+            $candidates =   $builder->get();
+        }else if(Auth::user()->hasRole('hr')){
+            $candidates = $builder  
+            ->where('reviewer_id', Auth::user()->id)->get();
+        }else if(Auth::user()->hasRole('employee')){
+            $candidates = $builder  
+            ->where('employee_id', Employees::getId())->get();
+        }
+        
 
         if($candidates){
            
@@ -100,9 +107,9 @@ class ReviewsController extends Controller
 
     public function saveReviewResult(Request $request){
         $data = $request->except('_token','submit','employee_id');
-        
+       
         $id = $request->employee_id;
-   
+
         $result = [];
         foreach($data as $key=>$value){
     
@@ -110,35 +117,16 @@ class ReviewsController extends Controller
         }
        
         ReviewResult::insert($result);
-        ReviewList::where('employee_id', Auth::user()->id)->update(['status'=>'completed']);
+        $list = ReviewList::where('employee_id', $id)->first();
+        
+        $list->update(['status'=>'completed']);
         Session::flash('message', "Thank you for review");
         return redirect(route('review.show.candidates'));
 
     }
 
-    /**
-     * Store Each Review of Employee
-     * emp_id, temp_id, model
-     * @param Request $request
-     * @return void
-     */
-    public function store(Request $request)
-    {
-        $data['employee_id'] = 1;
-        $data['temp_id'] = 1;
-        
-        $data['json_data'] = json_encode($request->all());
    
-        $this->review->create($data);
-    }
 
-    public function sendForReview(Request $request)
-    {
-        
-        foreach($request->employee_ids as $employee_id){
-            $this->review->create(['employee_id'=> $employee_id, 'temp_id'=>$request->temp_id]);
-        }
-    }
 
     /**
      * Store the list of selected candidates with there reviewer id
@@ -147,10 +135,7 @@ class ReviewsController extends Controller
      * @return void
      */
     public function storeCandidate(Request $request){
-        //dd($request->all());
-        // $start_date = $request->start_date;
-        // $end_date = $request->end_date;
-
+        
         $employees = $request->employee_id;
         $reviewer = $request->reviewer_id;
         $fid = $request->form_id;
@@ -158,7 +143,7 @@ class ReviewsController extends Controller
 
         $i=0;
         foreach($employees as $id){
-            $data[] = ['employee_id'=> $id, 'form_name'=>'sample_review_form', 'form_id'=>$fid, 'reviewer_id'=>$reviewer[$i]];
+            $data[] = ['employee_id'=> $id, 'form_name'=>'sample_review_form', 'form_id'=>$fid, 'reviewer_id'=>$reviewer[$i], 'status'=>'open'];
             $i++;
         }
    //dd($data);

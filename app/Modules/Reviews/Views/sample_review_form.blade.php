@@ -38,7 +38,8 @@
                             <form   method="post" class="" action="{{ route('review.store') }}" enctype='multipart/form-data' >
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 
-                                <input type="hidden" name="employee_id" value="{{ Auth::user()->id }}">
+                                <input type="hidden" name="employee_id" value="{{ request()->eid }}">
+                                <input type="hidden" name="form_id" value="{{ request()->fid }}">
                                 
 
                                     <h4>Section II: Planning and Problem Solving

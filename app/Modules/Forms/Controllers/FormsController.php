@@ -72,7 +72,7 @@ class FormsController extends Controller
             
         ]);
         if($validator->fails()){
-            return back()->withErrors()->withInput();
+            return back()->withErrors($validator)->withInput();
         }
         //$name = Forms::getNameById($request->form_id);
         $form = $this->form->create($request->only('name','description','start_date', 'end_date'));

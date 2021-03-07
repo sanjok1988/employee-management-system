@@ -7,6 +7,7 @@
 
                     <div class="panel-body">
                         I'm an example component!
+                       
                     </div>
                 </div>
             </div>
@@ -16,8 +17,9 @@
 
 <script>
     export default {
-        ready() {
-            console.log('Component ready.')
+        mounted() {
+            console.log('test');
         }
+       
     }
 </script>

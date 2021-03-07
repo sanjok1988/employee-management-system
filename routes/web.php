@@ -29,13 +29,12 @@ Auth::routes();
 * $this->post('password/reset', 'Auth\ResetPasswordController@reset');
  */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index');
+Route::get('/', 'HomeController@index');
+Route::get('api/task', 'TaskController@getTask');
 
 Route::get('404', function(){
     return view('errors.503');
